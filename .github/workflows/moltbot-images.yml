@@ -12,7 +12,7 @@ permissions:
 env:
   UPSTREAM_REPO: moltbot/moltbot
   IMAGE_REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: ${{ github.repository_owner }}
+  IMAGE_NAMESPACE: ${{ toLower(github.repository_owner) }}
   IMAGE_PREFIX_DEFAULT: moltbot
 
 jobs:
