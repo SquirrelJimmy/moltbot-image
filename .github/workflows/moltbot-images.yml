@@ -12,7 +12,7 @@ permissions:
 env:
   UPSTREAM_REPO: moltbot/moltbot
   IMAGE_REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: ${{ toLower(github.repository_owner) }}
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}
   IMAGE_PREFIX_DEFAULT: moltbot
 
 jobs:
@@ -86,6 +86,10 @@ jobs:
         run: |
           git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
             "https://github.com/${UPSTREAM_REPO}.git" upstream
+
+      - name: Normalize image namespace
+        run: |
+          echo "IMAGE_NAMESPACE=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
