@@ -5,13 +5,13 @@
 
 ## 镜像与标签
 
-镜像仓库：`ghcr.io/<OWNER>/`（`<OWNER>` 替换为你的 GitHub 组织/用户名）
+镜像仓库：`ghcr.io/squirreljimmy/`
 
 默认构建的镜像（对应上游 Dockerfile）：
 
-- `ghcr.io/<OWNER>/moltbot:<tag>`
-- `ghcr.io/<OWNER>/moltbot-sandbox:<tag>`
-- `ghcr.io/<OWNER>/moltbot-sandbox-browser:<tag>`
+- `ghcr.io/squirreljimmy/moltbot:<tag>`
+- `ghcr.io/squirreljimmy/moltbot-sandbox:<tag>`
+- `ghcr.io/squirreljimmy/moltbot-sandbox-browser:<tag>`
 
 标签规则：
 
@@ -27,7 +27,7 @@
 ```yaml
 services:
   moltbot-gateway:
-    image: ghcr.io/<OWNER>/moltbot:latest
+    image: ghcr.io/squirreljimmy/moltbot:latest
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -55,7 +55,7 @@ services:
       ]
 
   moltbot-cli:
-    image: ghcr.io/<OWNER>/moltbot:latest
+    image: ghcr.io/squirreljimmy/moltbot:latest
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -155,15 +155,15 @@ docker compose run --rm moltbot-cli onboard --no-install-daemon
 
 如果需要 sandbox 镜像，把 `image:` 替换为：
 
-- `ghcr.io/<OWNER>/moltbot-sandbox:latest`
-- `ghcr.io/<OWNER>/moltbot-sandbox-browser:latest`
+- `ghcr.io/squirreljimmy/moltbot-sandbox:latest`
+- `ghcr.io/squirreljimmy/moltbot-sandbox-browser:latest`
 
 ## 可选：复用上游 docker-setup.sh
 
 如果你仍想使用上游脚本的交互流程，可先设置：
 
 ```bash
-export CLAWDBOT_IMAGE=ghcr.io/<OWNER>/moltbot:latest
+export CLAWDBOT_IMAGE=ghcr.io/squirreljimmy/moltbot:latest
 ```
 
 然后执行上游的 `docker-setup.sh`（脚本会改用你的 GHCR 镜像）。
