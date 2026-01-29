@@ -56,6 +56,32 @@ def infer_suffix(root, dirpath, filename):
     return tail or "default"
 
 
+def discover_root_only(root):
+    dockerfiles = []
+    for filename in os.listdir(root):
+        path = os.path.join(root, filename)
+        if not os.path.isfile(path):
+            continue
+        if filename == "Dockerfile" or filename.startswith("Dockerfile."):
+            dockerfiles.append(path)
+        elif filename.startswith("Dockerfile-"):
+            dockerfiles.append(path)
+    return dockerfiles
+
+
+def discover_all(root):
+    dockerfiles = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        if ".git" in dirnames:
+            dirnames.remove(".git")
+        for filename in filenames:
+            if filename == "Dockerfile" or filename.startswith("Dockerfile."):
+                dockerfiles.append(os.path.join(dirpath, filename))
+            elif filename.startswith("Dockerfile-"):
+                dockerfiles.append(os.path.join(dirpath, filename))
+    return dockerfiles
+
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: discover_targets.py <repo_root>", file=sys.stderr)
@@ -67,16 +93,11 @@ def main():
         return 1
 
     default_prefix = os.environ.get("IMAGE_PREFIX_DEFAULT", "moltbot").strip()
-    dockerfiles = []
-
-    for dirpath, dirnames, filenames in os.walk(root):
-        if ".git" in dirnames:
-            dirnames.remove(".git")
-        for filename in filenames:
-            if filename == "Dockerfile" or filename.startswith("Dockerfile."):
-                dockerfiles.append(os.path.join(dirpath, filename))
-            elif filename.startswith("Dockerfile-"):
-                dockerfiles.append(os.path.join(dirpath, filename))
+    scan_mode = os.environ.get("DOCKERFILE_SCAN", "root").strip().lower()
+    if scan_mode == "all":
+        dockerfiles = discover_all(root)
+    else:
+        dockerfiles = discover_root_only(root)
 
     targets = []
     for dockerfile in sorted(dockerfiles):
