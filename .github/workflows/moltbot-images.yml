@@ -10,10 +10,10 @@ permissions:
   packages: write
 
 env:
-  UPSTREAM_REPO: moltbot/moltbot
+  UPSTREAM_REPO: openclaw/openclaw
   IMAGE_REGISTRY: ghcr.io
   IMAGE_NAMESPACE: ${{ github.repository_owner }}
-  IMAGE_PREFIX_DEFAULT: moltbot
+  IMAGE_PREFIX_DEFAULT: openclaw
 
 jobs:
   prepare:

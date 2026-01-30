@@ -1,6 +1,6 @@
-# Moltbot 镜像使用指南
+# Openclaw 镜像使用指南
 
-本仓库用于自动构建并发布上游 `moltbot/moltbot` 的 Docker 镜像到 GHCR。  
+本仓库用于自动构建并发布上游 `openclaw/openclaw` 的 Docker 镜像到 GHCR。  
 `latest` 标签始终对应上游最新 release tag（定时刷新）。
 
 ## 镜像与标签
@@ -9,9 +9,9 @@
 
 默认构建的镜像（对应上游 Dockerfile）：
 
-- `ghcr.io/squirreljimmy/moltbot:<tag>`
-- `ghcr.io/squirreljimmy/moltbot-sandbox:<tag>`
-- `ghcr.io/squirreljimmy/moltbot-sandbox-browser:<tag>`
+- `ghcr.io/squirreljimmy/openclaw:<tag>`
+- `ghcr.io/squirreljimmy/openclaw-sandbox:<tag>`
+- `ghcr.io/squirreljimmy/openclaw-sandbox-browser:<tag>`
 
 标签规则：
 
@@ -27,7 +27,7 @@
 ```yaml
 services:
   moltbot-gateway:
-    image: ghcr.io/squirreljimmy/moltbot:latest
+    image: ghcr.io/squirreljimmy/openclaw:latest
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -55,7 +55,7 @@ services:
       ]
 
   moltbot-cli:
-    image: ghcr.io/squirreljimmy/moltbot:latest
+    image: ghcr.io/squirreljimmy/openclaw:latest
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -155,15 +155,15 @@ docker compose run --rm moltbot-cli onboard --no-install-daemon
 
 如果需要 sandbox 镜像，把 `image:` 替换为：
 
-- `ghcr.io/squirreljimmy/moltbot-sandbox:latest`
-- `ghcr.io/squirreljimmy/moltbot-sandbox-browser:latest`
+- `ghcr.io/squirreljimmy/openclaw-sandbox:latest`
+- `ghcr.io/squirreljimmy/openclaw-sandbox-browser:latest`
 
 ## 可选：复用上游 docker-setup.sh
 
 如果你仍想使用上游脚本的交互流程，可先设置：
 
 ```bash
-export CLAWDBOT_IMAGE=ghcr.io/squirreljimmy/moltbot:latest
+export CLAWDBOT_IMAGE=ghcr.io/squirreljimmy/openclaw:latest
 ```
 
 然后执行上游的 `docker-setup.sh`（脚本会改用你的 GHCR 镜像）。
