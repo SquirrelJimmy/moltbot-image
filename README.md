@@ -140,6 +140,39 @@ docker compose up -d openclaw-gateway
 
 > 上述命令默认依赖上游仓库中的 `docker-compose.yml`。
 
+## Docker 环境变量（compose）
+
+建议在 `docker-compose.yml` 同级目录创建 `.env`，至少包含以下变量：
+
+必填：
+- `OPENCLAW_GATEWAY_TOKEN`：Gateway 认证 Token（建议 32 字节十六进制）
+
+建议配置：
+- `OPENCLAW_CONFIG_DIR`：配置目录（默认：`~/.openclaw`，映射到容器 `/home/node/.openclaw`）
+- `OPENCLAW_WORKSPACE_DIR`：工作区目录（默认：`~/.openclaw/workspace`，映射到容器 `/home/node/.openclaw/workspace`）
+- `OPENCLAW_GATEWAY_PORT`：Gateway 端口（默认：`18789`）
+- `OPENCLAW_BRIDGE_PORT`：Bridge 端口（默认：`18790`）
+- `OPENCLAW_GATEWAY_BIND`：绑定模式（默认：`lan`）
+
+可选：
+- `OPENCLAW_IMAGE`：镜像名（默认：`openclaw:local`，建议设为你的 GHCR 镜像）
+- `OPENCLAW_EXTRA_MOUNTS`：额外挂载（逗号分隔）
+- `OPENCLAW_HOME_VOLUME`：持久化 `/home/node` 的命名卷或路径
+- `OPENCLAW_DOCKER_APT_PACKAGES`：构建时安装的 apt 包（逗号分隔）
+- `CLAUDE_AI_SESSION_KEY` / `CLAUDE_WEB_SESSION_KEY` / `CLAUDE_WEB_COOKIE`：按你的鉴权方式配置
+
+示例 `.env`：
+
+```bash
+OPENCLAW_CONFIG_DIR=/home/youruser/.openclaw
+OPENCLAW_WORKSPACE_DIR=/home/youruser/.openclaw/workspace
+OPENCLAW_GATEWAY_TOKEN=请替换为你的随机值
+OPENCLAW_GATEWAY_PORT=18789
+OPENCLAW_BRIDGE_PORT=18790
+OPENCLAW_GATEWAY_BIND=lan
+OPENCLAW_IMAGE=ghcr.io/squirreljimmy/openclaw:latest
+```
+
 ---
 
 # 额外挂载
