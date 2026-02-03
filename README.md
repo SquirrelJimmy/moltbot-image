@@ -112,6 +112,7 @@ services:
     environment:
       HOME: /home/node
       TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       BROWSER: echo
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
@@ -223,7 +224,7 @@ export OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg,libzbar0
 进入容器执行渠道配置：
 
 ```bash
-docker compose run --rm openclaw-cli providers login
+docker compose run --rm openclaw-cli channels login
 ```
 
 ---
@@ -231,7 +232,13 @@ docker compose run --rm openclaw-cli providers login
 # 健康检查
 
 ```bash
-curl http://127.0.0.1:18789/health
+docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLAW_GATEWAY_TOKEN"
+```
+
+如果你需要重新获取 Dashboard 链接与配对信息：
+
+```bash
+docker compose run --rm openclaw-cli dashboard --no-open
 ```
 
 ---
