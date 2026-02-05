@@ -3,7 +3,7 @@
 ## 项目结构与模块组织
 - `README.md`：使用与镜像说明。
 - `scripts/discover_targets.py`：扫描上游仓库中的 Dockerfile，并输出 GitHub Actions 构建矩阵 JSON。
-- `.github/workflows/moltbot-images.yml`：定时/手动触发的构建与发布流水线；CI 会临时克隆上游到 `upstream/`。
+- `.github/workflows/openclaw-images.yml`：定时/手动触发的构建与发布流水线；CI 会临时克隆上游到 `upstream/`。
 - 本仓库不包含 Dockerfile 或应用源码，构建输入来自上游仓库目录 `upstream/`。
 
 ## CI 与镜像策略
