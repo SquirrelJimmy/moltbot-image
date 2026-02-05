@@ -92,7 +92,8 @@ def main():
         print(f"Repo root not found: {root}", file=sys.stderr)
         return 1
 
-    default_prefix = os.environ.get("IMAGE_PREFIX_DEFAULT", "moltbot").strip()
+    # Keep a sensible default for local runs (CI sets IMAGE_PREFIX_DEFAULT explicitly).
+    default_prefix = os.environ.get("IMAGE_PREFIX_DEFAULT", "openclaw").strip()
     scan_mode = os.environ.get("DOCKERFILE_SCAN", "root").strip().lower()
     if scan_mode == "all":
         dockerfiles = discover_all(root)

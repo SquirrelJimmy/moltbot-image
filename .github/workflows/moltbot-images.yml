@@ -1,4 +1,4 @@
-name: build-moltbot-images
+name: build-openclaw-images
 
 on:
   schedule:

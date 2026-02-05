@@ -141,6 +141,13 @@ docker compose up -d openclaw-gateway
 
 > 上述命令默认依赖上游仓库中的 `docker-compose.yml`。
 
+如果你设置了 `OPENCLAW_EXTRA_MOUNTS` 或 `OPENCLAW_HOME_VOLUME`，`docker-setup.sh` 会生成 `docker-compose.extra.yml`。
+此时请在运行 Compose 时把它也包含进去：
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.extra.yml up -d openclaw-gateway
+```
+
 ## Docker 环境变量（compose）
 
 建议在 `docker-compose.yml` 同级目录创建 `.env`，至少包含以下变量：
@@ -209,12 +216,14 @@ export OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg,libzbar0
 
 ---
 
-# 更快的重建
+# 更快的重建（建议）
 
-安装构建缓存脚本（上游提供）：
+上游 Dockerfile 已按“先复制 lockfile/metadata 再安装依赖”的方式分层；一般只要 `pnpm-lock.yaml` 不变，重建就能复用缓存，避免重复跑 `pnpm install`。
+
+另外：当前镜像默认以非 root 用户 `node`（uid 1000）运行；如果你把宿主目录挂载到 `/home/node/.openclaw` 或 workspace，遇到 `EACCES` 权限错误，通常需要把宿主目录属主改成 uid 1000（Linux 示例）：
 
 ```bash
-./scripts/docker/setup-dev.sh
+sudo chown -R 1000:1000 /path/to/openclaw-config /path/to/openclaw-workspace
 ```
 
 ---
@@ -224,8 +233,17 @@ export OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg,libzbar0
 进入容器执行渠道配置：
 
 ```bash
+# WhatsApp（扫码登录）
 docker compose run --rm openclaw-cli channels login
+
+# Telegram（bot token）
+docker compose run --rm openclaw-cli channels add --channel telegram --token "<token>"
+
+# Discord（bot token）
+docker compose run --rm openclaw-cli channels add --channel discord --token "<token>"
 ```
+
+更多渠道说明见：`https://docs.openclaw.ai/channels`
 
 ---
 
@@ -243,18 +261,18 @@ docker compose run --rm openclaw-cli dashboard --no-open
 
 ---
 
-# E2E Smoke 测试
+# E2E Smoke 测试（Docker）
 
 ```bash
-./scripts/docker/smoke-test.sh
+scripts/e2e/onboard-docker.sh
 ```
 
 ---
 
-# QR 导入 Smoke 测试
+# QR import Smoke 测试（Docker）
 
 ```bash
-OPENCLAW_WPP_QR=<YOUR_QR> ./scripts/docker/qr-import.sh
+pnpm test:docker:qr
 ```
 
 ---
@@ -287,60 +305,84 @@ Openclaw 默认在主机运行 Gateway，你可以让**非 main 会话**在 Dock
 }
 ```
 
-## 创建默认 sandbox 镜像
+## 使用本仓库预构建的 sandbox 镜像（推荐）
 
-```bash
-docker build -t openclaw-sandbox -f Dockerfile.sandbox .
-```
+本仓库会同步构建并发布以下镜像（同样遵循 `<tag>` + `latest`）：
 
-## 常用 sandbox 镜像
+- `ghcr.io/squirreljimmy/openclaw-sandbox:latest`
+- `ghcr.io/squirreljimmy/openclaw-sandbox-browser:latest`
 
-```bash
-docker build -t openclaw-sandbox -f Dockerfile.sandbox .
-docker build -t openclaw-sandbox-browser -f Dockerfile.sandbox-browser .
-```
+在 `~/.openclaw/openclaw.json` 中覆盖默认 sandbox 镜像（上游默认一般是 `openclaw-sandbox:bookworm-slim`）：
 
-## 自定义 sandbox 镜像
-
-```bash
-docker build \
-  -t openclaw-sandbox \
-  -f Dockerfile.sandbox .
-```
-
-## sandbox 默认行为
-
-默认情况下：
-- 运行工具的容器 **没有网络**。
-- `shell` 工具在容器内执行。
-
-如需开启网络访问：
-
-```json
+```json5
 {
-  "agents": {
-    "defaults": {
-      "sandbox": {
-        "mode": "non-main",
-        "networkEnabled": true
-      }
-    }
-  }
+  agents: {
+    defaults: {
+      sandbox: {
+        mode: "non-main",
+        docker: { image: "ghcr.io/squirreljimmy/openclaw-sandbox:latest" },
+      },
+    },
+  },
 }
 ```
 
-## 自动清理
+如果要把 `browser` 工具也放进 sandbox（需要浏览器镜像）：
 
-容器在执行后会自动删除。  
-如果工具退出码为 0，Openclaw 会清理所有容器与卷；否则只清理容器，保留卷便于排错。
+```json5
+{
+  agents: {
+    defaults: {
+      sandbox: {
+        mode: "non-main",
+        docker: { image: "ghcr.io/squirreljimmy/openclaw-sandbox:latest" },
+        browser: {
+          enabled: true,
+          image: "ghcr.io/squirreljimmy/openclaw-sandbox-browser:latest",
+        },
+      },
+    },
+  },
+}
+```
+
+## 自行构建 sandbox 镜像（上游仓库）
+
+在上游 `openclaw/openclaw` 仓库根目录执行：
+
+```bash
+scripts/sandbox-setup.sh
+scripts/sandbox-browser-setup.sh
+```
+
+它们会分别构建：
+
+- `openclaw-sandbox:bookworm-slim`
+- `openclaw-sandbox-browser:bookworm-slim`
+
+## 网络（可选）
+
+默认情况下 sandbox 容器网络是 `none`（无外网）。如需访问外网，显式设置网络（示例：`bridge`）：
+
+```json5
+{
+  agents: {
+    defaults: {
+      sandbox: {
+        mode: "non-main",
+        docker: {
+          image: "ghcr.io/squirreljimmy/openclaw-sandbox:latest",
+          network: "bridge",
+        },
+      },
+    },
+  },
+}
+```
 
 ## 安全提示
 
-即便在 Docker 中执行，`bash` 仍然能产生副作用。  
-建议：
-
-- 只暴露必要的目录
-- 避免在容器中保存敏感信息
+即便在 Docker sandbox 中执行，`shell`/`bash` 仍然可能产生副作用。建议只挂载必要目录，并避免在容器内保存敏感信息。
 
 ## 排错提示
 

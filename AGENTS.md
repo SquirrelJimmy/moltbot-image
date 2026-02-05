@@ -7,16 +7,16 @@
 - 本仓库不包含 Dockerfile 或应用源码，构建输入来自上游仓库目录 `upstream/`。
 
 ## CI 与镜像策略
-- 触发方式：定时 `0 */6 * * *` 与 `workflow_dispatch` 手动触发。
-- 上游来源：`UPSTREAM_REPO=moltbot/moltbot`，优先使用 release tag；回退到最新 git tag。
-- 标签策略：发布 `<tag>` 与 `latest` 两个标签到 `ghcr.io/<OWNER>/`。
+- 触发方式：定时 `0 2 */3 * *`（UTC；北京时间约 10:00，每 3 天一次）与 `workflow_dispatch` 手动触发。
+- 上游来源：`UPSTREAM_REPO=openclaw/openclaw`，优先使用 release tag；回退到最新 git tag。
+- 标签策略：发布 `<tag>` 与 `latest` 两个标签到 `ghcr.io/<owner>/`（注意 GHCR 仓库名要求小写）。
 - 矩阵字段：`name`、`context`、`dockerfile`、`image` 由脚本生成并传入 Buildx。
 - 目标架构：`linux/amd64`（如需多架构，请更新 workflow 与上游 Dockerfile 支持情况）。
 
 ## 构建、测试与本地开发命令
 - `python3 scripts/discover_targets.py <repo_root>`：生成镜像构建矩阵。
 - 示例：
-  - `git clone --depth 1 --branch <tag> https://github.com/moltbot/moltbot.git upstream`
+  - `git clone --depth 1 --branch <tag> https://github.com/openclaw/openclaw.git upstream`
   - `python3 scripts/discover_targets.py upstream > matrix.json`
 - 构建由 CI 完成；如需本地验证，可使用上游的 Dockerfile 在 `upstream/` 目录手动构建。
 
